@@ -1,5 +1,6 @@
 package br.com.example.es2_saude.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,5 +19,6 @@ public class ExameLab {
 
     @ManyToOne
     @JoinColumn(name = "atendimento_id")
+    @JsonIgnoreProperties("exames")
     private Atendimento atendimento;
 }

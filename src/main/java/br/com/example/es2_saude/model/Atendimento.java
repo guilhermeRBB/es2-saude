@@ -1,5 +1,7 @@
 package br.com.example.es2_saude.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
@@ -24,8 +26,10 @@ public class Atendimento {
 
     @ManyToOne
     @JoinColumn(name = "profissional_id")
+    @JsonIgnoreProperties("atendimentos")
     private ProfissionalSaude profissional;
 
     @OneToMany(mappedBy = "atendimento", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<ExameLab> exames;
 }

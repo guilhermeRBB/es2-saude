@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ES2 Saúde</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <a class="brand" href="#dashboard" data-view-link="dashboard" aria-label="Ir para o painel">
+                <span class="brand-mark" aria-hidden="true">ES</span>
+                <span>
+                    <strong>ES2 Saúde</strong>
+                    <small>Gestão clínica</small>
+                </span>
+            </a>
+
+            <nav class="main-nav" aria-label="Navegação principal">
+                <button class="nav-link active" type="button" data-view-link="dashboard">
+                    <span aria-hidden="true">⌂</span>
+                    Painel
+                </button>
+                <button class="nav-link" type="button" data-view-link="profissionais">
+                    <span aria-hidden="true">+</span>
+                    Profissionais
+                </button>
+                <button class="nav-link" type="button" data-view-link="atendimentos">
+                    <span aria-hidden="true">◷</span>
+                    Atendimentos
+                </button>
+                <button class="nav-link" type="button" data-view-link="exames">
+                    <span aria-hidden="true">□</span>
+                    Exames
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="apiStatus">Conectando</span>
+            </div>
+        </aside>
+
+        <main class="workspace">
+            <header class="topbar">
+                <div>
+                    <span class="eyebrow">Plataforma integrada</span>
+                    <h1 id="pageTitle">Painel operacional</h1>
+                </div>
+                <button class="btn btn-secondary" type="button" data-action="refresh" title="Atualizar dados">
+                    <span aria-hidden="true">↻</span>
+                    Atualizar
+                </button>
+            </header>
+
+            <section class="view active" id="dashboardView" data-view="dashboard" aria-labelledby="dashboardTitle">
+                <div class="section-heading">
+                    <div>
+                        <h2 id="dashboardTitle">Resumo da operação</h2>
+                        <p>Acompanhe cadastros, agenda e solicitações de exames.</p>
+                    </div>
+                </div>
+
+                <div class="metrics-grid" aria-label="Indicadores">
+                    <article class="metric-card metric-primary">
+                        <span>Profissionais</span>
+                        <strong id="metricProfissionais">0</strong>
+                    </article>
+                    <article class="metric-card metric-success">
+                        <span>Atendimentos</span>
+                        <strong id="metricAtendimentos">0</strong>
+                    </article>
+                    <article class="metric-card metric-warning">
+                        <span>Exames</span>
+                        <strong id="metricExames">0</strong>
+                    </article>
+                    <article class="metric-card metric-accent">
+                        <span>Hoje</span>
+                        <strong id="metricHoje">0</strong>
+                    </article>
+                </div>
+
+                <div class="dashboard-grid">
+                    <section class="panel" aria-labelledby="agendaTitle">
+                        <div class="panel-header">
+                            <h3 id="agendaTitle">Agenda próxima</h3>
+                        </div>
+                        <div class="timeline-list" id="upcomingList"></div>
+                    </section>
+
+                    <section class="panel" aria-labelledby="categoriaTitle">
+                        <div class="panel-header">
+                            <h3 id="categoriaTitle">Categorias</h3>
+                        </div>
+                        <div class="category-bars" id="categoryBars"></div>
+                    </section>
+                </div>
+            </section>
+
+            <section class="view" id="profissionaisView" data-view="profissionais" aria-labelledby="profissionaisTitle">
+                <div class="section-heading">
+                    <div>
+                        <h2 id="profissionaisTitle">Profissionais de saúde</h2>
+                        <p>Cadastre, encontre e mantenha os contatos da equipe atualizados.</p>
+                    </div>
+                </div>
+
+                <section class="panel form-panel" aria-labelledby="profissionalFormTitle">
+                    <div class="panel-header">
+                        <h3 id="profissionalFormTitle">Cadastro de profissional</h3>
+                    </div>
+                    <form id="profissionalForm" class="form-grid">
+                        <input type="hidden" id="profissionalId">
+                        <label>
+                            Nome
+                            <input type="text" id="profissionalNome" placeholder="Nome completo" required>
+                        </label>
+                        <label>
+                            Telefone
+                            <input type="tel" id="profissionalTelefone" placeholder="(00) 00000-0000" required>
+                        </label>
+                        <label>
+                            Categoria
+                            <select id="profissionalCategoria" required>
+                                <option value="">Selecione</option>
+                                <option value="MEDICO">Médico</option>
+                                <option value="PSICOLOGO">Psicólogo</option>
+                                <option value="FISIOTERAPEUTA">Fisioterapeuta</option>
+                            </select>
+                        </label>
+                        <label class="span-2">
+                            Endereço
+                            <input type="text" id="profissionalEndereco" placeholder="Rua, número, bairro">
+                        </label>
+                        <div class="form-actions">
+                            <button class="btn btn-primary" type="submit">
+                                <span aria-hidden="true">+</span>
+                                Salvar
+                            </button>
+                            <button class="btn btn-ghost is-hidden" type="button" data-action="cancel-profissional-edit">
+                                Cancelar edição
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="panel" aria-labelledby="profissionaisListaTitle">
+                    <div class="panel-header stacked-header">
+                        <h3 id="profissionaisListaTitle">Lista de profissionais</h3>
+                        <div class="table-tools">
+                            <input type="search" id="searchProfissionalNome" placeholder="Buscar por nome">
+                            <select id="searchProfissionalCategoria" aria-label="Filtrar por categoria">
+                                <option value="">Todas as categorias</option>
+                                <option value="MEDICO">Médico</option>
+                                <option value="PSICOLOGO">Psicólogo</option>
+                                <option value="FISIOTERAPEUTA">Fisioterapeuta</option>
+                            </select>
+                            <button class="btn btn-secondary" type="button" data-action="search-profissionais">Buscar</button>
+                            <button class="btn btn-ghost" type="button" data-action="clear-profissionais-search">Limpar</button>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Categoria</th>
+                                    <th>Telefone</th>
+                                    <th>Endereço</th>
+                                    <th class="actions-heading">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="profissionaisTable"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </section>
+
+            <section class="view" id="atendimentosView" data-view="atendimentos" aria-labelledby="atendimentosTitle">
+                <div class="section-heading">
+                    <div>
+                        <h2 id="atendimentosTitle">Atendimentos</h2>
+                        <p>Registre consultas, problemas relatados e orientações de saúde.</p>
+                    </div>
+                </div>
+
+                <section class="panel form-panel" aria-labelledby="atendimentoFormTitle">
+                    <div class="panel-header">
+                        <h3 id="atendimentoFormTitle">Cadastro de atendimento</h3>
+                    </div>
+                    <form id="atendimentoForm" class="form-grid">
+                        <input type="hidden" id="atendimentoId">
+                        <label>
+                            Data
+                            <input type="date" id="atendimentoData" required>
+                        </label>
+                        <label>
+                            Horário
+                            <input type="time" id="atendimentoHorario" required>
+                        </label>
+                        <label>
+                            Profissional
+                            <select id="atendimentoProfissional" required>
+                                <option value="">Selecione um profissional</option>
+                            </select>
+                        </label>
+                        <label class="span-2">
+                            Problema relatado
+                            <textarea id="atendimentoProblema" rows="3" placeholder="Descreva o problema do paciente" required></textarea>
+                        </label>
+                        <label class="span-2">
+                            Receita ou orientação
+                            <textarea id="atendimentoReceita" rows="3" placeholder="Informe conduta, receita ou recomendações"></textarea>
+                        </label>
+                        <div class="form-actions">
+                            <button class="btn btn-primary" type="submit">
+                                <span aria-hidden="true">+</span>
+                                Salvar
+                            </button>
+                            <button class="btn btn-ghost is-hidden" type="button" data-action="cancel-atendimento-edit">
+                                Cancelar edição
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="panel" aria-labelledby="atendimentosListaTitle">
+                    <div class="panel-header">
+                        <h3 id="atendimentosListaTitle">Histórico de atendimentos</h3>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Horário</th>
+                                    <th>Profissional</th>
+                                    <th>Problema</th>
+                                    <th>Receita</th>
+                                    <th class="actions-heading">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="atendimentosTable"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </section>
+
+            <section class="view" id="examesView" data-view="exames" aria-labelledby="examesTitle">
+                <div class="section-heading">
+                    <div>
+                        <h2 id="examesTitle">Exames laboratoriais</h2>
+                        <p>Associe exames aos atendimentos e acompanhe solicitações.</p>
+                    </div>
+                </div>
+
+                <section class="panel form-panel" aria-labelledby="exameFormTitle">
+                    <div class="panel-header">
+                        <h3 id="exameFormTitle">Solicitar exame</h3>
+                    </div>
+                    <form id="exameForm" class="form-grid">
+                        <label class="span-2">
+                            Descrição
+                            <input type="text" id="exameDescricao" placeholder="Ex.: Hemograma completo" required>
+                        </label>
+                        <label>
+                            Atendimento
+                            <select id="exameAtendimento" required>
+                                <option value="">Selecione um atendimento</option>
+                            </select>
+                        </label>
+                        <div class="form-actions">
+                            <button class="btn btn-primary" type="submit">
+                                <span aria-hidden="true">+</span>
+                                Salvar
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="panel" aria-labelledby="examesListaTitle">
+                    <div class="panel-header">
+                        <h3 id="examesListaTitle">Exames cadastrados</h3>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Descrição</th>
+                                    <th>Atendimento</th>
+                                    <th>Profissional</th>
+                                    <th class="actions-heading">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="examesTable"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </section>
+        </main>
+    </div>
+
+    <div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="true"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>

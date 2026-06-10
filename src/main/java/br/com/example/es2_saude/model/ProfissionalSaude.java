@@ -1,6 +1,7 @@
 package br.com.example.es2_saude.model;
 
 import br.com.example.es2_saude.model.enums.Categoria;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;
@@ -24,5 +25,6 @@ public class ProfissionalSaude {
     private Categoria categoria;
 
     @OneToMany(mappedBy = "profissional", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Atendimento> atendimentos;
 }
